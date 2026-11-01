@@ -1,0 +1,43 @@
+---
+layout: page.njk
+title: Personalised gift finder
+description: Pick who you're buying for, your budget in AUD and the occasion to get a short list of personalised gift ideas.
+permalink: /gift-finder/
+---
+<p>Choose who it's for, how much you want to spend and the occasion. The list updates instantly and runs entirely in your browser. Budgets are rough AUD ranges, not quotes.</p>
+<div class="tool" id="finder">
+  <label for="who">Who is it for?</label>
+  <select id="who">
+    <option value="any">Anyone</option><option value="mum">Mum</option><option value="dad">Dad</option><option value="grandparent">Grandparent</option><option value="teacher">Teacher</option><option value="coworker">Coworker</option><option value="friend">Friend</option><option value="teen">Teenager</option><option value="kid">Kid</option><option value="couple">Couple</option>
+  </select>
+  <label for="budget">Budget (AUD)</label>
+  <select id="budget">
+    <option value="any">Any budget</option><option value="u20">Under $20</option><option value="u50">$20 to $50</option><option value="u100">$50 to $100</option>
+  </select>
+  <label for="occasion">Occasion</label>
+  <select id="occasion">
+    <option value="any">Any occasion</option><option value="christmas">Christmas</option><option value="kris-kringle">Kris Kringle</option><option value="secret-santa">Secret Santa (work)</option><option value="teacher">Teacher gift</option><option value="graduation">Graduation</option><option value="birthday">Birthday</option><option value="mothers-day">Mother's Day</option><option value="fathers-day">Father's Day</option><option value="wedding">Wedding</option><option value="anniversary">Anniversary</option>
+  </select>
+  <p id="count" class="meta" aria-live="polite"></p>
+  <ul id="results" class="results"></ul>
+</div>
+<p class="note">Personalised items take extra time to make. For Christmas delivery within Australia, check <a href="https://auspost.com.au/personal/sending/christmas-sending-dates" rel="noopener">Australia Post's Christmas cut-off dates</a> and add the seller's making time on top.</p>
+<script>
+(function () {
+  var gifts = {{ gifts | dump | safe }};
+  var labels = { u20: "Under $20", u50: "$20–$50", u100: "$50–$100" };
+  var $ = function (id) { return document.getElementById(id); };
+  function render() {
+    var w = $("who").value, b = $("budget").value, o = $("occasion").value;
+    var list = gifts.filter(function (g) {
+      return (w === "any" || g.who.indexOf(w) > -1) && (b === "any" || g.budget === b) && (o === "any" || g.occasion.indexOf(o) > -1);
+    });
+    $("count").textContent = list.length ? list.length + " idea" + (list.length > 1 ? "s" : "") : "No exact matches. Try a wider budget or 'Anyone'.";
+    $("results").innerHTML = list.map(function (g) {
+      return '<li><span class="pill">' + labels[g.budget] + '</span><strong>' + g.idea + '</strong><br><span class="meta">' + g.note + '</span></li>';
+    }).join("");
+  }
+  ["who", "budget", "occasion"].forEach(function (id) { $(id).addEventListener("change", render); });
+  render();
+})();
+</script>
